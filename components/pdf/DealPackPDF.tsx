@@ -260,8 +260,6 @@ export default function DealPackPDF({ deal }: { deal: DealPackData }) {
   const platformFee = Math.round(deal.sourcing_fee * 0.05);
   const investorTotal = deal.sourcing_fee + platformFee;
   const commission = Math.round(deal.sourcing_fee * 0.2);
-  const commissionVat = Math.round(commission * 0.2);
-  // sourcerPayout = deal.sourcing_fee - commission - commissionVat (available for future use)
 
   return (
     <Document

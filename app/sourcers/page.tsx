@@ -21,28 +21,6 @@ export const metadata: Metadata = {
     "List your packaged property deals to a network of verified, AML-compliant investors. Get paid via Stripe Connect with no cold outreach.",
 };
 
-const steps = [
-  {
-    step: "01",
-    title: "Register & Verify",
-    body: "Create your sourcer account and submit your compliance documents. We verify your AML certificate, PRS membership, PI insurance, photo ID, proof of address, and ICO registration.",
-  },
-  {
-    step: "02",
-    title: "Upload Your Deal Pack",
-    body: "List your deal with full property details — asking price, sourcing fee, gross yield, ROI, BMV, monthly rent, and a deal pack PDF. Takes around 10 minutes per deal.",
-  },
-  {
-    step: "03",
-    title: "Investors Browse & Enquire",
-    body: "Verified, qualified investors discover your deal on the marketplace. You receive a notification when an investor reserves a deal.",
-  },
-  {
-    step: "04",
-    title: "Get Paid via Stripe Connect",
-    body: "Once the deal completes, Stripe Connect handles the full payment flow. Your 80% net proceeds are paid out instantly — no chasing invoices.",
-  },
-];
 
 const docs = [
   { label: "Photo ID", detail: "Passport or driving licence" },
