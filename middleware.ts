@@ -8,56 +8,59 @@ const ROLE_DASHBOARDS: Record<string, string> = {
 };
 
 export async function middleware(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request });
+  try {
+    let supabaseResponse = NextResponse.next({ request });
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll();
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value }) =>
+              request.cookies.set(name, value)
+            );
+            supabaseResponse = NextResponse.next({ request });
+            cookiesToSet.forEach(({ name, value, options }) =>
+              supabaseResponse.cookies.set(name, value, options)
+            );
+          },
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          );
-          supabaseResponse = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          );
-        },
-      },
+      }
+    );
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    const { pathname } = request.nextUrl;
+
+    if (user && (pathname === "/login" || pathname === "/register")) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+      const destination = profile?.role && ROLE_DASHBOARDS[profile.role]
+        ? ROLE_DASHBOARDS[profile.role]
+        : "/dashboard/investor";
+
+      return NextResponse.redirect(new URL(destination, request.url));
     }
-  );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    if (pathname.startsWith("/dashboard") && !user) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
 
-  const { pathname } = request.nextUrl;
-
-  // Redirect authenticated users away from auth pages to their dashboard
-  if (user && (pathname === "/login" || pathname === "/register")) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-    const destination = profile?.role && ROLE_DASHBOARDS[profile.role]
-      ? ROLE_DASHBOARDS[profile.role]
-      : "/dashboard/investor";
-
-    return NextResponse.redirect(new URL(destination, request.url));
+    return supabaseResponse;
+  } catch (err) {
+    console.error("[middleware] error:", err);
+    return NextResponse.next();
   }
-
-  // Protect dashboard routes
-  if (pathname.startsWith("/dashboard") && !user) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
-
-  return supabaseResponse;
 }
 
 export const config = {
