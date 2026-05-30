@@ -227,10 +227,10 @@ export default function SourcersPage() {
               <span>Amount</span>
             </div>
             {[
-              { label: "Investor pays (fee + 5% platform fee)", value: "£5,300", note: "" },
-              { label: "PropertyScan commission (20%)", value: "−£1,000", note: "platform fee" },
-              { label: "PropertyScan platform cut", value: "−£500", note: "5% from investor" },
-              { label: "You receive (net)", value: "£4,000", highlight: true },
+              { label: "Your sourcing fee", value: "£5,000" },
+              { label: "PropertyScan commission (20%)", value: "−£1,000" },
+              { label: "VAT on commission (20%)", value: "−£200" },
+              { label: "You receive (net)", value: "£3,800", highlight: true },
             ].map((row) => (
               <div
                 key={row.label}
@@ -243,7 +243,7 @@ export default function SourcersPage() {
           </div>
 
           <p className="text-center text-navy/40 text-xs mt-6">
-            All figures exclude VAT. VAT is charged on platform fees where applicable.
+            The investor pays £5,250 — your £5,000 fee plus a 5% buyer protection fee (£250), charged directly by PropertyScan. That charge does not affect your payout.
           </p>
         </div>
       </section>

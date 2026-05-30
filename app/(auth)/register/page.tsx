@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -23,7 +23,7 @@ const roles: { value: UserRole; label: string; description: string; icon: string
   },
 ];
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const preselectedRole = searchParams.get("role") as UserRole | null;
@@ -265,4 +265,8 @@ export default function RegisterPage() {
       </div>
     </div>
   );
+}
+
+export default function RegisterPage() {
+  return <Suspense><RegisterForm /></Suspense>;
 }

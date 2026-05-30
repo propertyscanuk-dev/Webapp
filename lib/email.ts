@@ -44,7 +44,7 @@ export async function sendDealReserved(to: string, sourcerName: string, dealTitl
     <p>Hi ${sourcerName},</p>
     <p>An investor has reserved your deal: <strong>${dealTitle}</strong>.</p>
     <p>Payment will be processed via Stripe. You'll receive a confirmation and payout notification once the payment completes.</p>
-    <p><a href="${APP_URL}/dashboard/sourcer/deals">View your deals →</a></p>
+    <p><a href="${APP_URL}/deals/${dealId}">View deal →</a></p>
     <p>The PropertyScan Team</p>
   `);
 }

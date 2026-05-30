@@ -53,7 +53,7 @@ export default function SourcerVerificationPage() {
       <div className="bg-navy/5 border border-navy/10 rounded-xl px-5 py-4 mb-6">
         <p className="text-xs font-semibold text-navy uppercase tracking-wide mb-1">Why we verify sourcers</p>
         <p className="text-xs text-navy/60 leading-relaxed">
-          PropertyScan is AML-compliant and FCA-aligned. We verify every sourcer to protect investors and ensure all deals meet UK property sourcing regulations. Verification typically takes 1 business day.
+          PropertyScan is AML-compliant and regulation-aligned. We verify every sourcer to protect investors and ensure all deals meet UK property sourcing regulations. Verification typically takes 1 business day.
         </p>
       </div>
 

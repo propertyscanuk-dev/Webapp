@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Navy background -->
+  <rect width="32" height="32" rx="5" fill="#0D2137"/>
+  <!-- House body -->
+  <path d="M4 17v10h13V17" stroke="#2DD4BF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Roof -->
+  <path d="M2 17L10.5 8l8.5 9" stroke="#2DD4BF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Magnifying glass circle -->
+  <circle cx="23.5" cy="20" r="5" stroke="#2DD4BF" stroke-width="1.8" fill="none"/>
+  <!-- Magnifying glass handle -->
+  <line x1="27.2" y1="23.8" x2="30" y2="26.5" stroke="#2DD4BF" stroke-width="2.2" stroke-linecap="round"/>
+</svg>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { approveUserAction, rejectUserAction } from "@/app/dashboard/admin/verifications/actions";
 import type { VerificationDocument } from "@/types/database";
 
 const DOC_LABELS: Record<string, string> = {
@@ -62,20 +63,14 @@ export default function VerificationReview({ users: initialUsers, adminId }: Pro
 
   async function approveUser(userId: string) {
     setBusy((p) => ({ ...p, [userId]: true }));
-    await supabase
-      .from("profiles")
-      .update({ verification_status: "approved" })
-      .eq("id", userId);
+    await approveUserAction(userId);
     setUsers((prev) => prev.filter((u) => u.userId !== userId));
     setBusy((p) => ({ ...p, [userId]: false }));
   }
 
   async function rejectUser(userId: string) {
     setBusy((p) => ({ ...p, [userId]: true }));
-    await supabase
-      .from("profiles")
-      .update({ verification_status: "rejected" })
-      .eq("id", userId);
+    await rejectUserAction(userId);
     setUsers((prev) => prev.filter((u) => u.userId !== userId));
     setBusy((p) => ({ ...p, [userId]: false }));
   }
@@ -102,7 +97,6 @@ export default function VerificationReview({ users: initialUsers, adminId }: Pro
   return (
     <div className="space-y-6">
       {users.map((user) => {
-        const pendingDocs = user.documents.filter((d) => d.status === "pending");
         const allDocsApproved = user.documents.length > 0 && user.documents.every((d) => d.status === "approved");
 
         return (

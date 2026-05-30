@@ -30,12 +30,14 @@ export default async function AdminDealsPage() {
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
   if (profile?.role !== "admin") redirect("/dashboard");
 
+  type DealRow = { id: string; title: string; city: string; postcode: string; deal_type: string; asking_price: number; sourcing_fee: number; status: string; created_at: string; profiles: { full_name: string | null; company_name: string | null } | null };
+
   const { data: deals } = await supabaseAdmin
     .from("deals")
     .select("id, title, city, postcode, deal_type, asking_price, sourcing_fee, status, created_at, profiles!deals_sourcer_id_fkey(full_name, company_name)")
     .order("created_at", { ascending: false });
 
-  const list = deals ?? [];
+  const list: DealRow[] = (deals as unknown as DealRow[]) ?? [];
   const active   = list.filter(d => d.status === "active").length;
   const sold     = list.filter(d => d.status === "sold").length;
   const reserved = list.filter(d => d.status === "reserved").length;

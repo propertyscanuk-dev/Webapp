@@ -99,12 +99,12 @@ const faqs = [
     a: "You can register and view the marketplace listing titles, but full deal details — including address, PDF deal packs, and financials — are only visible to verified investors.",
   },
   {
-    q: "What does the 5% platform fee cover?",
-    a: "The 5% platform fee (on the sourcing fee) covers our compliance infrastructure, deal verification, Stripe payments processing, and customer support. It is charged in addition to the sourcer's stated sourcing fee.",
+    q: "What does the 5% buyer protection fee cover?",
+    a: "The 5% buyer protection fee (on the sourcing fee) covers our compliance infrastructure, deal verification, Stripe secure payments processing, and customer support. It is charged in addition to the sourcer's stated sourcing fee.",
   },
   {
     q: "Are the sourcers on PropertyScan regulated?",
-    a: "All sourcers are verified against our compliance checklist — AML certificate, PRS membership, PI insurance, ICO registration, photo ID, and proof of address. PropertyScan is not FCA authorised and does not provide regulated financial advice.",
+    a: "All sourcers are verified against our compliance checklist — AML certificate, PRS membership, PI insurance, ICO registration, photo ID, and proof of address. PropertyScan does not provide regulated financial advice.",
   },
   {
     q: "What happens if a deal falls through?",
@@ -155,7 +155,7 @@ export default function InvestorsPage() {
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-8 text-center">
           <div>
             <p className="text-4xl font-bold text-navy">5%</p>
-            <p className="text-navy/70 text-sm mt-1">Platform fee on<br />sourcing fee only</p>
+            <p className="text-navy/70 text-sm mt-1">Buyer protection<br />fee on sourcing fee</p>
           </div>
           <div className="hidden sm:block w-px h-12 bg-navy/20" />
           <div>
@@ -282,8 +282,44 @@ export default function InvestorsPage() {
         </div>
       </section>
 
-      {/* FAQ */}
+      {/* Fee breakdown */}
       <section className="bg-white border-t border-gray-100 py-32 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl sm:text-5xl font-bold text-navy mb-6">Fee Breakdown</h2>
+            <p className="text-navy/60 text-xl leading-relaxed">
+              A worked example on a £5,000 sourcing fee.
+            </p>
+          </div>
+
+          <div className="border border-gray-200 rounded-2xl overflow-hidden">
+            <div className="bg-navy text-white px-8 py-5 flex justify-between text-sm font-semibold">
+              <span>Item</span>
+              <span>Amount</span>
+            </div>
+            {[
+              { label: "Sourcing fee (set by the sourcer)", value: "£5,000" },
+              { label: "5% buyer protection fee", value: "+£250" },
+              { label: "Total you pay", value: "£5,250", highlight: true },
+            ].map((row) => (
+              <div
+                key={row.label}
+                className={`px-8 py-5 flex justify-between items-center border-t border-gray-100 ${row.highlight ? "bg-teal/5" : ""}`}
+              >
+                <span className={`text-sm ${row.highlight ? "font-bold text-navy" : "text-navy/70"}`}>{row.label}</span>
+                <span className={`text-sm font-bold ${row.highlight ? "text-teal text-lg" : "text-navy"}`}>{row.value}</span>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-center text-navy/40 text-xs mt-6">
+            The sourcing fee is set by the sourcer and varies per deal. The 5% buyer protection fee is charged by PropertyScan on top of the sourcing fee and covers compliance infrastructure, secure payments, and dispute resolution.
+          </p>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="bg-gray-50 border-t border-gray-100 py-32 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold text-navy mb-6">Common Questions</h2>

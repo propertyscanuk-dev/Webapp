@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "About Us — PropertyScan",
   description:
-    "PropertyScan is the UK's first AML-compliant property deal marketplace. Built by O'Gorman Property Group Ltd to bring trust and compliance to the sourcing industry.",
+    "PropertyScan is the UK's first AML-compliant property deal marketplace. Built to bring trust and compliance to the property sourcing industry.",
 };
 
 const values = [
@@ -22,15 +22,15 @@ const values = [
   },
   {
     title: "Fair to Both Sides",
-    body: "Sourcers keep 80% of their fee. Investors pay a modest 5% platform fee. We only earn when a deal successfully completes — our incentives are aligned with yours.",
+    body: "Sourcers keep 80% of their fee. Investors pay a modest 5% buyer protection fee. We only earn when a deal successfully completes — our incentives are aligned with yours.",
   },
 ];
 
 const badges = [
-  { label: "AML Compliant", desc: "All users pass Anti-Money Laundering checks" },
-  { label: "PRS Aligned", desc: "All sourcers hold Property Redress Scheme membership" },
-  { label: "ICO Registered", desc: "GDPR-compliant data handling and storage" },
-  { label: "FCA Aligned", desc: "We operate as an introduction platform, not a regulated adviser" },
+  { label: "AML Compliant",   desc: "All users pass Anti-Money Laundering checks",               href: "/compliance/aml" },
+  { label: "PRS Aligned",     desc: "All sourcers hold Property Redress Scheme membership",       href: "/compliance/prs" },
+  { label: "ICO Registered",  desc: "GDPR-compliant data handling and storage",                   href: "/compliance/ico" },
+  { label: "Escrow Protected", desc: "Payments held securely via Stripe until deal completion",   href: "/compliance/escrow" },
 ];
 
 export default function AboutPage() {
@@ -77,17 +77,18 @@ export default function AboutPage() {
 
           <div className="flex flex-col gap-4 mt-2">
             {badges.map((b) => (
-              <div key={b.label} className="border border-gray-200 rounded-xl p-6 flex gap-5 items-start">
+              <Link key={b.label} href={b.href} className="border border-gray-200 rounded-xl p-6 flex gap-5 items-start hover:border-teal/40 hover:bg-teal/5 transition-colors group">
                 <div className="w-6 h-6 rounded-full bg-teal flex items-center justify-center shrink-0 mt-0.5">
                   <svg className="w-3.5 h-3.5 text-navy" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <div>
-                  <p className="font-bold text-navy mb-1">{b.label}</p>
+                <div className="flex-1">
+                  <p className="font-bold text-navy mb-1 group-hover:text-teal transition-colors">{b.label}</p>
                   <p className="text-navy/50 text-sm leading-snug">{b.desc}</p>
                 </div>
-              </div>
+                <span className="text-navy/30 group-hover:text-teal transition-colors text-sm mt-0.5">→</span>
+              </Link>
             ))}
           </div>
         </div>
@@ -117,13 +118,12 @@ export default function AboutPage() {
           <h2 className="text-4xl sm:text-5xl font-bold text-navy mb-8">The Company</h2>
           <div className="flex flex-col gap-6 text-navy/60 text-lg leading-relaxed mb-12">
             <p>
-              PropertyScan is built and operated by <strong className="text-navy">O&apos;Gorman Property Group Ltd</strong>,
+              PropertyScan is built and operated by <strong className="text-navy">PropertyScan UK Ltd</strong>,
               a UK property company focused on compliant deal sourcing and investment.
             </p>
             <p>
               We are registered in England and Wales. PropertyScan operates as an introduction platform
               facilitating transactions between verified property sourcers and verified property investors.
-              We are not authorised or regulated by the Financial Conduct Authority.
             </p>
             <p>
               We are ICO registered and handle all user data in compliance with the UK GDPR.

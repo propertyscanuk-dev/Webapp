@@ -136,9 +136,6 @@ export default function Sidebar({ role }: SidebarProps) {
         <span className="text-teal font-bold text-xl tracking-tight">
           Property<span className="text-white">Scan</span>
         </span>
-        <span className="ml-2 text-xs text-teal/60 font-medium border border-teal/30 rounded px-1.5 py-0.5">
-          BETA
-        </span>
       </div>
 
       {/* Role badge */}

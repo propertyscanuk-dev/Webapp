@@ -260,7 +260,7 @@ export default async function DealDetailPage({
               </p>
               <div className="space-y-2 text-xs text-navy/50 leading-relaxed">
                 <p>
-                  PropertyScan is not authorised or regulated by the Financial Conduct Authority (FCA). We are an AML-compliant property deal marketplace that facilitates introductions between verified property professionals. We do not provide financial advice.
+                  PropertyScan is an AML-compliant property deal marketplace that facilitates introductions between verified property professionals. We do not provide financial advice.
                 </p>
                 <p>
                   All sourcers on this platform have completed AML verification in line with the Money Laundering Regulations 2017. Investors are responsible for conducting their own due diligence before transacting. Past returns are not indicative of future performance.
@@ -321,11 +321,11 @@ export default async function DealDetailPage({
                     <span className="font-semibold text-navy">{formatGBP(deal.sourcing_fee)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-navy/60">Platform fee (5%)</span>
+                    <span className="text-navy/60">Buyer protection fee (5%)</span>
                     <span className="font-medium text-navy">{formatGBP(platformFee)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-navy/60">VAT on platform fee</span>
+                    <span className="text-navy/60">VAT on buyer protection fee</span>
                     <span className="font-medium text-navy">{formatGBP(platformFeeVat)}</span>
                   </div>
                   <div className="border-t border-gray-100 pt-3 flex justify-between items-baseline">
@@ -442,6 +442,24 @@ export default async function DealDetailPage({
 
               </div>
 
+              {/* Message sourcer */}
+              {isVerifiedInvestor && sourcer && (
+                <div className="bg-white rounded-xl border border-gray-200 p-6">
+                  <p className="text-xs font-semibold text-navy/40 uppercase tracking-widest mb-4">
+                    Contact Sourcer
+                  </p>
+                  <Link
+                    href={`/dashboard/investor/messages?deal=${deal.id}&with=${sourcer.id}`}
+                    className="flex items-center gap-3 w-full bg-gray-50 border border-gray-200 text-navy font-semibold py-3 px-4 rounded-xl hover:bg-gray-100 transition-colors text-sm"
+                  >
+                    <svg className="w-4 h-4 shrink-0 text-navy/50" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    Message {sourcer.full_name ?? "Sourcer"}
+                  </Link>
+                </div>
+              )}
+
               {/* Deal pack download */}
               {isVerifiedInvestor && (
                 <div className="bg-white rounded-xl border border-gray-200 p-6">
@@ -484,7 +502,7 @@ export default async function DealDetailPage({
                     { icon: "🛡", label: "AML Compliant" },
                     { icon: "🏠", label: "PRS Aligned" },
                     { icon: "🔒", label: "ICO Registered" },
-                    { icon: "✓",  label: "FCA Aligned" },
+                    { icon: "✓",  label: "Escrow Protected" },
                   ].map((b) => (
                     <div
                       key={b.label}

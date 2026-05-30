@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/service";
+import { sendDealReserved } from "@/lib/email";
 
 export async function reserveDeal(dealId: string): Promise<{ error: string | null }> {
   const supabase = await createClient();
@@ -38,6 +40,30 @@ export async function reserveDeal(dealId: string): Promise<{ error: string | nul
 
   if (error || !updated) {
     return { error: "This deal is no longer available for reservation." };
+  }
+
+  // Notify sourcer that their deal has been reserved
+  const { data: deal } = await supabaseAdmin
+    .from("deals")
+    .select("title, sourcer_id")
+    .eq("id", dealId)
+    .single();
+
+  if (deal) {
+    const { data: sourcer } = await supabaseAdmin
+      .from("profiles")
+      .select("email, full_name")
+      .eq("id", deal.sourcer_id)
+      .single();
+
+    if (sourcer) {
+      await sendDealReserved(
+        sourcer.email,
+        sourcer.full_name ?? "Sourcer",
+        deal.title ?? dealId,
+        dealId,
+      );
+    }
   }
 
   revalidatePath(`/deals/${dealId}`);

@@ -1,8 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/", "/login", "/register", "/verify-email", "/sourcers", "/investors", "/deals"];
-
 const ROLE_DASHBOARDS: Record<string, string> = {
   sourcer: "/dashboard/sourcer",
   investor: "/dashboard/investor",
@@ -47,9 +45,9 @@ export async function middleware(request: NextRequest) {
       .eq("id", user.id)
       .single();
 
-    const destination = profile?.role
+    const destination = profile?.role && ROLE_DASHBOARDS[profile.role]
       ? ROLE_DASHBOARDS[profile.role]
-      : "/dashboard";
+      : "/dashboard/investor";
 
     return NextResponse.redirect(new URL(destination, request.url));
   }

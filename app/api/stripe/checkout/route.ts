@@ -42,7 +42,7 @@ export async function POST(request: Request) {
           unit_amount: investorTotal,
           product_data: {
             name: deal.title,
-            description: `Sourcing fee + 5% platform fee + VAT — ${deal.city}, ${deal.postcode}`,
+            description: `Sourcing fee + 5% buyer protection fee + VAT — ${deal.city}, ${deal.postcode}`,
           },
         },
         quantity: 1,

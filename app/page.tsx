@@ -1,5 +1,6 @@
 import Link from "next/link";
 import DealPreviewCard, { type SampleDeal } from "@/components/DealPreviewCard";
+import SocialLinks from "@/components/SocialLinks";
 
 const sampleDeals: SampleDeal[] = [
   {
@@ -37,10 +38,10 @@ const sampleDeals: SampleDeal[] = [
 ];
 
 const badges = [
-  { label: "AML Compliant", icon: "🛡" },
-  { label: "PRS Aligned", icon: "🏠" },
-  { label: "ICO Registered", icon: "🔒" },
-  { label: "FCA Aligned", icon: "✓" },
+  { label: "AML Compliant",   icon: "🛡", href: "/compliance/aml" },
+  { label: "PRS Aligned",     icon: "🏠", href: "/compliance/prs" },
+  { label: "ICO Registered",  icon: "🔒", href: "/compliance/ico" },
+  { label: "Escrow Protected", icon: "✓", href: "/compliance/escrow" },
 ];
 
 const sourcerSteps = [
@@ -87,7 +88,7 @@ const investorSteps = [
 
 const stats = [
   { value: "£0", label: "Upfront cost to join" },
-  { value: "5%", label: "Investor platform fee" },
+  { value: "5%", label: "Buyer protection fee" },
   { value: "20%", label: "Sourcer commission" },
   { value: "100%", label: "Verified users only" },
 ];
@@ -138,13 +139,14 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto text-center w-full py-24">
           <div className="flex flex-wrap justify-center gap-3 mb-12">
             {badges.map((b) => (
-              <span
+              <Link
                 key={b.label}
-                className="inline-flex items-center gap-2 text-sm font-semibold bg-white/10 border border-white/25 text-teal rounded-full px-5 py-2"
+                href={b.href}
+                className="inline-flex items-center gap-2 text-sm font-semibold bg-white/10 border border-white/25 text-teal rounded-full px-5 py-2 hover:bg-white/20 transition-colors"
               >
                 <span className="text-base">{b.icon}</span>
                 {b.label}
-              </span>
+              </Link>
             ))}
           </div>
 
@@ -387,10 +389,11 @@ export default function HomePage() {
 
           <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
             <p className="text-white/30 text-xs">
-              © 2026 O&apos;Gorman Property Group Ltd · Registered in England and Wales
+              © 2026 PropertyScan UK Ltd · Registered in England and Wales
             </p>
+            <SocialLinks />
             <p className="text-white/20 text-xs max-w-md">
-              PropertyScan is not authorised by the FCA. We are an AML-compliant deal marketplace facilitating introductions between verified professionals.
+              AML-compliant deal marketplace facilitating introductions between verified property professionals.
             </p>
           </div>
         </div>

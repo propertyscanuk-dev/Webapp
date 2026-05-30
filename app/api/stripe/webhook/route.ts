@@ -42,10 +42,14 @@ export async function POST(request: Request) {
 
     const [{ data: investor }, { data: sourcer }] = await Promise.all([
       supabaseAdmin.from("profiles").select("email, full_name").eq("id", investorId).single(),
-      supabaseAdmin.from("profiles").select("email, full_name").eq("id", deal.sourcer_id).single(),
+      supabaseAdmin.from("profiles").select("email, full_name, stripe_account_id").eq("id", deal.sourcer_id).single(),
     ]);
 
-    await supabaseAdmin.from("transactions").insert({
+    const paymentIntentId = typeof session.payment_intent === "string"
+      ? session.payment_intent
+      : (session.payment_intent?.id ?? null);
+
+    const { data: txRow } = await supabaseAdmin.from("transactions").insert({
       deal_id:                dealId,
       investor_id:            investorId,
       sourcer_id:             deal.sourcer_id,
@@ -57,12 +61,39 @@ export async function POST(request: Request) {
       sourcer_commission_vat: fees.sourcerCommissionVat,
       sourcer_payout:         fees.sourcerPayout,
       platform_revenue:       fees.platformRevenue,
-      stripe_payment_intent_id: typeof session.payment_intent === "string"
-        ? session.payment_intent
-        : (session.payment_intent?.id ?? null),
+      stripe_payment_intent_id: paymentIntentId,
       stripe_transfer_id: null,
       status: "completed",
-    });
+    }).select("id").single();
+
+    // Pay the sourcer via Stripe transfer to their connected account
+    const sourcerStripeAccount = (sourcer as unknown as { stripe_account_id: string | null } | null)?.stripe_account_id;
+    if (sourcerStripeAccount && paymentIntentId && txRow) {
+      try {
+        // Retrieve the PaymentIntent to get the underlying charge ID
+        const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+        const chargeId = typeof paymentIntent.latest_charge === "string"
+          ? paymentIntent.latest_charge
+          : paymentIntent.latest_charge?.id ?? undefined;
+
+        const transfer = await stripe.transfers.create({
+          amount:      fees.sourcerPayout,
+          currency:    "gbp",
+          destination: sourcerStripeAccount,
+          transfer_group: dealId,
+          ...(chargeId ? { source_transaction: chargeId } : {}),
+          metadata: { deal_id: dealId, transaction_id: txRow.id },
+        });
+
+        await supabaseAdmin
+          .from("transactions")
+          .update({ stripe_transfer_id: transfer.id })
+          .eq("id", txRow.id);
+      } catch (err) {
+        // Transfer failed — payment was received; stripe_transfer_id stays null for admin review
+        console.error("Stripe transfer failed for transaction", txRow.id, err);
+      }
+    }
 
     if (investor && sourcer) {
       await sendPaymentConfirmed(

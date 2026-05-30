@@ -32,7 +32,7 @@ export default function ContactPage() {
             <div>
               <h2 className="text-lg font-bold text-navy mb-4">PropertyScan UK</h2>
               <p className="text-navy/60 text-sm leading-relaxed">
-                Operated by O&apos;Gorman Property Group Ltd<br />
+                Operated by PropertyScan UK Ltd<br />
                 Registered in England and Wales
               </p>
             </div>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import ConditionalHeader from "@/components/ConditionalHeader";
+import ConditionalFooter from "@/components/ConditionalFooter";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -26,6 +27,7 @@ export default function RootLayout({
       <body className="min-h-screen">
         <ConditionalHeader />
         {children}
+        <ConditionalFooter />
       </body>
     </html>
   );

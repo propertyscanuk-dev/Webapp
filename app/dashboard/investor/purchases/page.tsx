@@ -13,13 +13,15 @@ export default async function PurchasesPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  type TxRow = { id: string; investor_total: number; sourcing_fee: number; platform_fee: number; vat_amount: number; stripe_payment_intent_id: string | null; created_at: string; deals: { id: string; title: string; city: string; postcode: string; deal_type: string } | null };
+
   const { data: transactions } = await supabase
     .from("transactions")
     .select("*, deals(id, title, city, postcode, deal_type)")
     .eq("investor_id", user.id)
     .order("created_at", { ascending: false });
 
-  const list = transactions ?? [];
+  const list: TxRow[] = (transactions as unknown as TxRow[]) ?? [];
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
@@ -67,7 +69,7 @@ export default async function PurchasesPage() {
                     <p className="text-sm font-semibold text-navy">{fmt(tx.sourcing_fee)}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-navy/40">Platform Fee</p>
+                    <p className="text-xs text-navy/40">Buyer Protection Fee</p>
                     <p className="text-sm font-semibold text-navy">{fmt(tx.platform_fee)}</p>
                   </div>
                   <div>

@@ -90,11 +90,11 @@ export default function ReserveButton({ dealId, dealTitle, sourcingFee, paymentS
                 <span className="font-medium text-navy">{fmt(sourcingFee)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-navy/60">Platform fee (5%)</span>
+                <span className="text-navy/60">Buyer protection fee (5%)</span>
                 <span className="font-medium text-navy">{fmt(platformFee)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-navy/60">VAT on platform fee (20%)</span>
+                <span className="text-navy/60">VAT on buyer protection fee (20%)</span>
                 <span className="font-medium text-navy">{fmt(platformFeeVat)}</span>
               </div>
               <div className="border-t border-gray-200 pt-3 flex justify-between items-baseline">
@@ -104,7 +104,7 @@ export default function ReserveButton({ dealId, dealTitle, sourcingFee, paymentS
             </div>
 
             <p className="text-navy/40 text-xs mb-6 leading-relaxed">
-              Payment is processed securely via Stripe. Sourcing fees are non-refundable once a deal pack has been accessed. PropertyScan is not an FCA-regulated activity.
+              Payment is processed securely via Stripe. Sourcing fees are non-refundable once a deal pack has been accessed.
             </p>
 
             {error && (

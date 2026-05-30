@@ -458,3 +458,24 @@ create policy "Sourcers can upload deal packs"
 alter publication supabase_realtime add table public.messages;
 alter publication supabase_realtime add table public.notifications;
 alter publication supabase_realtime add table public.deals;
+
+-- ─── Message Content Filter ───────────────────────────────────
+-- Blocks emails and phone numbers from being sent via messages.
+-- Also run this manually in Supabase SQL Editor if schema is already deployed.
+
+create or replace function public.check_message_content()
+returns trigger language plpgsql as $$
+begin
+  if new.body ~* '[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}' then
+    raise exception 'Messages cannot contain email addresses.';
+  end if;
+  if new.body ~ '(\+?[0-9][0-9\s\-().]{8,}[0-9])' then
+    raise exception 'Messages cannot contain phone numbers.';
+  end if;
+  return new;
+end;
+$$;
+
+create trigger enforce_message_content
+  before insert on public.messages
+  for each row execute procedure public.check_message_content();
