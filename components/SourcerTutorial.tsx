@@ -213,7 +213,7 @@ function RegisterMockup() {
       <div className="space-y-3">
         <div>
           <div className="text-xs text-navy/40 mb-1">Full name</div>
-          <div className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-navy/60 bg-gray-50">James O'Brien</div>
+          <div className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-navy/60 bg-gray-50">James O&apos;Brien</div>
         </div>
         <div>
           <div className="text-xs text-navy/40 mb-1">Email address</div>
