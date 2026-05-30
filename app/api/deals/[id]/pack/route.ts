@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { renderToBuffer } from "@react-pdf/renderer";
 import { createElement } from "react";
 import { supabaseAdmin } from "@/lib/supabase/service";
@@ -9,15 +11,10 @@ export async function GET(
 ) {
   const { id } = params;
 
-  // Fetch deal + sourcer profile
+  // Fetch deal (no join — avoids TypeScript inference issues)
   const { data: deal, error } = await supabaseAdmin
     .from("deals")
-    .select(`
-      id, title, address_line1, address_line2, city, postcode,
-      deal_type, asking_price, sourcing_fee, monthly_rent,
-      gross_yield_percent, roi_percent, bmv_percent, description, status,
-      sourcer:profiles!sourcer_id (full_name, company_name)
-    `)
+    .select("id, title, address_line1, address_line2, city, postcode, deal_type, asking_price, sourcing_fee, monthly_rent, gross_yield_percent, roi_percent, bmv_percent, description, status, sourcer_id")
     .eq("id", id)
     .single();
 
@@ -25,10 +22,16 @@ export async function GET(
     return new Response("Deal not found", { status: 404 });
   }
 
-  // Only allow active/reserved/sold deals to have packs downloaded
-  if (!["active", "reserved", "sold"].includes(deal.status)) {
+  if (!["active", "reserved", "sold"].includes(deal.status as string)) {
     return new Response("Deal not available", { status: 403 });
   }
+
+  // Fetch sourcer profile separately
+  const { data: sourcer } = await supabaseAdmin
+    .from("profiles")
+    .select("full_name, company_name")
+    .eq("id", deal.sourcer_id)
+    .single();
 
   // Fetch hero photo (first photo)
   let heroPhotoUrl: string | null = null;
@@ -46,8 +49,6 @@ export async function GET(
     heroPhotoUrl = signed?.signedUrl ?? null;
   }
 
-  const sourcer = Array.isArray(deal.sourcer) ? deal.sourcer[0] : deal.sourcer;
-
   const pdfData = {
     id: deal.id,
     title: deal.title,
@@ -55,7 +56,7 @@ export async function GET(
     address_line2: deal.address_line2,
     city: deal.city,
     postcode: deal.postcode,
-    deal_type: deal.deal_type,
+    deal_type: deal.deal_type as string,
     asking_price: deal.asking_price,
     sourcing_fee: deal.sourcing_fee,
     monthly_rent: deal.monthly_rent,

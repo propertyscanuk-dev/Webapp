@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import { stripe, calculateFees } from "@/lib/stripe";
 import { supabaseAdmin } from "@/lib/supabase/service";
