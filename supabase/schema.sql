@@ -468,11 +468,16 @@ alter publication supabase_realtime add table public.deals;
 
 create or replace function public.check_message_content()
 returns trigger language plpgsql as $$
+declare
+  stripped text;
 begin
   if new.body ~* '[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}' then
     raise exception 'Messages cannot contain email addresses.';
   end if;
-  if new.body ~ '(\+?[0-9][0-9\s\-().]{8,}[0-9])' then
+  -- Strip spaces, dashes, dots, brackets, plus signs then check for 10+ consecutive digits
+  -- Catches: 07539 960669, 0 7 5 3 9 9 6 0 6 6 9, 07-539-960-669, (0753) 9960669, etc.
+  stripped := regexp_replace(new.body, '[\s\-+().]', '', 'g');
+  if stripped ~ '\d{10,}' then
     raise exception 'Messages cannot contain phone numbers.';
   end if;
   return new;

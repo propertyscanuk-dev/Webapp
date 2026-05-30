@@ -6,7 +6,9 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  serverExternalPackages: ["@react-pdf/renderer", "stripe"],
+  experimental: {
+    serverComponentsExternalPackages: ["@react-pdf/renderer", "stripe"],
+  },
   images: {
     remotePatterns: [
       {

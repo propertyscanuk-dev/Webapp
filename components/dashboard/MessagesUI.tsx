@@ -57,7 +57,13 @@ export default function MessagesUI({ userId, role, initialDealId, initialWithId 
   const isAdmin = role === "admin";
 
   const EMAIL_RE = /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/;
-  const PHONE_RE = /(\+?[\d][\d\s\-().]{8,}[\d])/;
+
+  function containsPhone(text: string): boolean {
+    // Strip all common formatting chars then check for 10+ consecutive digits
+    // Catches: 07539 960669, 0 7 5 3 9 9 6 0 6 6 9, 07-539-960-669, etc.
+    const stripped = text.replace(/[\s\-+().]/g, "");
+    return /\d{10,}/.test(stripped);
+  }
 
   const loadConversations = useCallback(async () => {
     type MsgRow = {
@@ -231,7 +237,7 @@ export default function MessagesUI({ userId, role, initialDealId, initialWithId 
       setSendError("Messages cannot contain email addresses. Please keep all communication on PropertyScan.");
       return;
     }
-    if (PHONE_RE.test(body)) {
+    if (containsPhone(body)) {
       setSendError("Messages cannot contain phone numbers. Please keep all communication on PropertyScan.");
       return;
     }
@@ -443,7 +449,7 @@ export default function MessagesUI({ userId, role, initialDealId, initialWithId 
                 {sendError ? (
                   <p className="text-xs text-red-600 mt-1.5 ml-1 leading-snug">{sendError}</p>
                 ) : (
-                  <p className="text-[10px] text-navy/20 mt-1.5 ml-1">⌘ Enter to send</p>
+                  <p className="text-[10px] text-navy/20 mt-1.5 ml-1 hidden sm:block">⌘ Enter to send</p>
                 )}
               </div>
             )}
