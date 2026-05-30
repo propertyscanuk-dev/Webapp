@@ -142,7 +142,7 @@ export default function MessagesUI({ userId, role, initialDealId, initialWithId 
       filtered.map((m) => ({
         id: m.id,
         sender_id: m.sender_id,
-        senderName: (m.sender as any)?.full_name ?? "User",
+        senderName: (m.sender as { full_name?: string } | null)?.full_name ?? "User",
         body: m.body,
         created_at: m.created_at,
       }))
