@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import VerificationDocs from "@/components/dashboard/VerificationDocs";
 import type { DocConfig } from "@/components/dashboard/VerificationDocs";
 
