@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
 
-export async function POST() {
+export async function POST(request: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -30,10 +30,11 @@ export async function POST() {
       .eq("id", user.id);
   }
 
+  const origin = new URL(request.url).origin;
   const accountLink = await stripe.accountLinks.create({
     account: accountId,
-    refresh_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/sourcer/payouts?refresh=true`,
-    return_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/sourcer/payouts?success=true`,
+    refresh_url: `${origin}/dashboard/sourcer/payouts?refresh=true`,
+    return_url:  `${origin}/dashboard/sourcer/payouts?success=true`,
     type: "account_onboarding",
   });
 

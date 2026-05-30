@@ -70,6 +70,13 @@ export async function POST(request: Request) {
     const sourcerStripeAccount = (sourcer as unknown as { stripe_account_id: string | null } | null)?.stripe_account_id;
     if (sourcerStripeAccount && paymentIntentId && txRow) {
       try {
+        // Verify the sourcer's Stripe account has payouts enabled before transferring
+        const sourcerAccount = await stripe.accounts.retrieve(sourcerStripeAccount);
+        if (!sourcerAccount.payouts_enabled) {
+          console.error("Sourcer payouts not enabled — transfer skipped for transaction", txRow.id);
+          // stripe_transfer_id stays null; admin can manually resolve
+          return NextResponse.json({ ok: true });
+        }
         // Retrieve the PaymentIntent to get the underlying charge ID
         const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
         const chargeId = typeof paymentIntent.latest_charge === "string"

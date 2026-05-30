@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { stripe } from "@/lib/stripe";
 import ConnectButton from "./ConnectButton";
 
 export default async function PayoutsPage({
@@ -18,6 +19,17 @@ export default async function PayoutsPage({
     .single();
 
   const isConnected = !!profile?.stripe_account_id;
+
+  // Check if Stripe has actually enabled payouts on this account
+  let payoutsEnabled = false;
+  if (profile?.stripe_account_id) {
+    try {
+      const account = await stripe.accounts.retrieve(profile.stripe_account_id);
+      payoutsEnabled = account.payouts_enabled ?? false;
+    } catch {
+      // Account may have been deleted on Stripe side — treat as not connected
+    }
+  }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
@@ -52,8 +64,10 @@ export default async function PayoutsPage({
               {isConnected ? "Stripe Connected" : "Connect Your Bank Account"}
             </p>
             <p className="text-navy/50 text-sm leading-relaxed">
-              {isConnected
-                ? "Your Stripe Express account is connected. When a deal completes, your net proceeds (80% of the sourcing fee) are paid directly to your bank account."
+              {isConnected && payoutsEnabled
+                ? "Your Stripe Express account is fully connected. When a deal completes, your net proceeds are paid directly to your bank account within 2–3 business days."
+                : isConnected && !payoutsEnabled
+                ? "Your Stripe account was created but onboarding is incomplete. Finish the setup to receive payouts."
                 : "Connect via Stripe Express to receive payouts. Takes around 5 minutes — you'll need your bank account details and proof of identity."}
             </p>
           </div>
@@ -77,7 +91,7 @@ export default async function PayoutsPage({
           </div>
         </div>
 
-        <ConnectButton isConnected={isConnected} />
+        <ConnectButton isConnected={isConnected} payoutsEnabled={payoutsEnabled} />
       </div>
     </div>
   );

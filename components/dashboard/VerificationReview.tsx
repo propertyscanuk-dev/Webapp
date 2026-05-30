@@ -36,6 +36,8 @@ export default function VerificationReview({ users: initialUsers, adminId }: Pro
   const [users, setUsers] = useState(initialUsers);
   const [rejecting, setRejecting] = useState<string | null>(null);
   const [rejectNotes, setRejectNotes] = useState<Record<string, string>>({});
+  const [rejectingUser, setRejectingUser] = useState<string | null>(null);
+  const [rejectUserReason, setRejectUserReason] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<Record<string, boolean>>({});
 
   async function approveDoc(docId: string, userId: string) {
@@ -69,9 +71,12 @@ export default function VerificationReview({ users: initialUsers, adminId }: Pro
   }
 
   async function rejectUser(userId: string) {
+    const reason = rejectUserReason[userId]?.trim();
+    if (!reason) return;
     setBusy((p) => ({ ...p, [userId]: true }));
-    await rejectUserAction(userId);
+    await rejectUserAction(userId, reason);
     setUsers((prev) => prev.filter((u) => u.userId !== userId));
+    setRejectingUser(null);
     setBusy((p) => ({ ...p, [userId]: false }));
   }
 
@@ -121,13 +126,38 @@ export default function VerificationReview({ users: initialUsers, adminId }: Pro
                     {busy[user.userId] ? "…" : "Approve Account"}
                   </button>
                 )}
-                <button
-                  onClick={() => rejectUser(user.userId)}
-                  disabled={busy[user.userId]}
-                  className="text-sm bg-red-50 text-red-600 font-medium px-4 py-2 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
-                >
-                  {busy[user.userId] ? "…" : "Reject Account"}
-                </button>
+                {rejectingUser === user.userId ? (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      placeholder="Reason for rejection…"
+                      value={rejectUserReason[user.userId] ?? ""}
+                      onChange={(e) => setRejectUserReason((p) => ({ ...p, [user.userId]: e.target.value }))}
+                      className="text-xs border border-red-200 rounded-lg px-3 py-2 text-navy placeholder-navy/30 focus:outline-none focus:ring-2 focus:ring-red-200 w-52"
+                    />
+                    <button
+                      onClick={() => rejectUser(user.userId)}
+                      disabled={busy[user.userId] || !rejectUserReason[user.userId]?.trim()}
+                      className="text-xs bg-red-500 text-white font-medium px-3 py-2 rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
+                    >
+                      {busy[user.userId] ? "…" : "Confirm"}
+                    </button>
+                    <button
+                      onClick={() => setRejectingUser(null)}
+                      className="text-xs text-navy/40 hover:text-navy px-2"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setRejectingUser(user.userId)}
+                    disabled={busy[user.userId]}
+                    className="text-sm bg-red-50 text-red-600 font-medium px-4 py-2 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
+                  >
+                    Reject Account
+                  </button>
+                )}
               </div>
             </div>
 

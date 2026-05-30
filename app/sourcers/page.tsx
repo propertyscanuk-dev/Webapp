@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import DealPreviewCard, { type SampleDeal } from "@/components/DealPreviewCard";
+import SourcerTutorial from "@/components/SourcerTutorial";
 
 const sampleListing: SampleDeal = {
   type: "BTL",
@@ -129,25 +130,16 @@ export default function SourcersPage() {
         </div>
       </section>
 
-      {/* How it works */}
+      {/* How it works — interactive tutorial */}
       <section id="how-it-works" className="bg-white py-32 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-20">
+          <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold text-navy mb-6">How It Works</h2>
             <p className="text-navy/60 text-xl max-w-xl mx-auto leading-relaxed">
-              From registration to payout in four straightforward steps.
+              From registration to payout — walk through each step of the sourcer journey.
             </p>
           </div>
-
-          <div className="grid sm:grid-cols-2 gap-8">
-            {steps.map((s) => (
-              <div key={s.step} className="border border-gray-100 rounded-2xl p-10 hover:border-teal/40 hover:shadow-lg transition-all">
-                <div className="text-teal font-bold text-sm tracking-widest mb-4">STEP {s.step}</div>
-                <h3 className="text-navy font-bold text-2xl mb-4">{s.title}</h3>
-                <p className="text-navy/60 text-lg leading-relaxed">{s.body}</p>
-              </div>
-            ))}
-          </div>
+          <SourcerTutorial />
         </div>
       </section>
 

@@ -27,7 +27,7 @@ export default async function SourcerDealsPage() {
 
   const { data: deals } = await supabase
     .from("deals")
-    .select("id, title, city, postcode, deal_type, status, asking_price, sourcing_fee, roi_percent, gross_yield_percent, created_at")
+    .select("id, title, city, postcode, deal_type, status, asking_price, sourcing_fee, roi_percent, gross_yield_percent, deal_pack_url, created_at")
     .eq("sourcer_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -93,6 +93,11 @@ export default async function SourcerDealsPage() {
                     {deal.gross_yield_percent && (
                       <span className="text-xs text-navy/30">{deal.gross_yield_percent}% yield</span>
                     )}
+                    {deal.deal_pack_url ? (
+                      <span className="text-xs text-teal font-medium">✓ Pack</span>
+                    ) : (
+                      <span className="text-xs text-amber-500">No pack</span>
+                    )}
                   </div>
                 </div>
 
@@ -114,7 +119,7 @@ export default async function SourcerDealsPage() {
                 </span>
 
                 {/* Actions */}
-                <DealActions dealId={deal.id} currentStatus={deal.status as DealStatus} />
+                <DealActions dealId={deal.id} currentStatus={deal.status as DealStatus} hasPack={!!deal.deal_pack_url} />
               </div>
             ))}
           </div>

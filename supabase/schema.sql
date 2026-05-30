@@ -432,9 +432,12 @@ create policy "Deal participants can read deal packs"
     bucket_id = 'deal-packs'
     and (
       public.is_admin()
+      -- Sourcer can always read their own deal packs (path: {user_id}/{deal_id}/deal-pack.pdf)
+      or auth.uid()::text = (storage.foldername(name))[1]
+      -- Investors can read after a completed purchase
       or exists (
         select 1 from public.transactions t
-        where (t.investor_id = auth.uid() or t.sourcer_id = auth.uid())
+        where t.investor_id = auth.uid()
           and t.status = 'completed'
       )
     )
