@@ -102,27 +102,35 @@ function DealCard({ deal }: { deal: Deal }) {
 }
 
 export default async function DealsPage() {
-  const supabase = await createClient();
+  let user = null;
+  let profile = null;
+  let dealList: Deal[] = [];
 
-  const { data: { user } } = await supabase.auth.getUser();
+  try {
+    const supabase = await createClient();
 
-  // Fetch profile if logged in
-  const { data: profile } = user
-    ? await supabase
+    const { data: userData } = await supabase.auth.getUser();
+    user = userData.user;
+
+    if (user) {
+      const { data: profileData } = await supabase
         .from("profiles")
         .select("role, verification_status")
         .eq("id", user.id)
-        .single()
-    : { data: null };
+        .single();
+      profile = profileData;
+    }
 
-  // Fetch active deals — RLS will return [] if user isn't a verified investor
-  const { data: deals } = await supabase
-    .from("deals")
-    .select("*")
-    .eq("status", "active")
-    .order("created_at", { ascending: false });
+    const { data: deals } = await supabase
+      .from("deals")
+      .select("*")
+      .eq("status", "active")
+      .order("created_at", { ascending: false });
 
-  const dealList = deals ?? [];
+    dealList = deals ?? [];
+  } catch (err) {
+    console.error("[DealsPage] error:", err);
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
