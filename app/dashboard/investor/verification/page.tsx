@@ -31,8 +31,9 @@ const INVESTOR_DOCS: DocConfig[] = [
   {
     type: "investment_questionnaire",
     label: "Investment Questionnaire",
-    description: "Completed self-certification as a sophisticated or high-net-worth investor. Download the template below.",
+    description: "Completed self-certification as a sophisticated or high-net-worth investor. Download the template, complete it, and upload the signed PDF.",
     accept: ".pdf",
+    // downloadUrl: "/investment-questionnaire-template.pdf",
   },
 ];
 
