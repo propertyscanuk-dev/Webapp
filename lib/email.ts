@@ -39,6 +39,17 @@ export async function sendVerificationRejected(to: string, name: string, reason?
   `);
 }
 
+export async function sendAdminNewVerification(userName: string, userEmail: string, role: string) {
+  await send("ahoffman79@live.com", `New verification submitted — ${userName}`, `
+    <p>A new ${role} has submitted their verification documents and is ready for review.</p>
+    <p><strong>Name:</strong> ${userName}<br/>
+    <strong>Email:</strong> ${userEmail}<br/>
+    <strong>Role:</strong> ${role}</p>
+    <p><a href="https://www.propertyscan.uk/dashboard/admin/verifications">Review now →</a></p>
+    <p>The PropertyScan Team</p>
+  `);
+}
+
 export async function sendDealReserved(to: string, sourcerName: string, dealTitle: string, dealId: string) {
   await send(to, `Your deal has been reserved — ${dealTitle}`, `
     <p>Hi ${sourcerName},</p>

@@ -205,6 +205,8 @@ export default function VerificationDocs({ docs }: VerificationDocsProps) {
       setErrors((prev) => ({ ...prev, [docType]: dbError.message }));
     } else {
       await fetchRecords();
+      // Notify admin on first document upload
+      fetch("/api/notify-verification", { method: "POST" }).catch(() => {});
     }
 
     setUploading((prev) => ({ ...prev, [docType]: false }));
