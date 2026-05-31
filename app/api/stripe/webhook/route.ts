@@ -18,8 +18,9 @@ export async function POST(request: Request) {
   let event: Stripe.Event;
   try {
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
-  } catch {
-    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+  } catch (err: any) {
+    console.error("[webhook] constructEvent failed:", err?.message, "secret prefix:", webhookSecret?.slice(0, 12));
+    return NextResponse.json({ error: "Invalid signature", detail: err?.message }, { status: 400 });
   }
 
   if (event.type === "checkout.session.completed") {
