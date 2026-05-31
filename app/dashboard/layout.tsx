@@ -24,7 +24,17 @@ export default async function DashboardLayout({
     .eq("id", user.id)
     .single();
 
-  if (!profile) redirect("/login");
+  if (!profile) {
+    // Profile missing — create it from auth metadata then reload
+    await supabase.from("profiles").upsert({
+      id: user.id,
+      email: user.email!,
+      full_name: user.user_metadata?.full_name ?? null,
+      role: user.user_metadata?.role ?? "investor",
+      verification_status: "not_submitted",
+    });
+    redirect("/dashboard");
+  }
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
