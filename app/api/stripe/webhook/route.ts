@@ -7,7 +7,8 @@ import { sendPaymentConfirmed } from "@/lib/email";
 import type Stripe from "stripe";
 
 export async function POST(request: Request) {
-  const body = await request.text();
+  const rawBody = await request.arrayBuffer();
+  const body = Buffer.from(rawBody);
   const sig = request.headers.get("stripe-signature");
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
