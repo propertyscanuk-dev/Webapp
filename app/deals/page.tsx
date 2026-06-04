@@ -101,10 +101,19 @@ function DealCard({ deal }: { deal: Deal }) {
   );
 }
 
+const INVESTOR_REQUIRED_DOCS = [
+  "photo_id",
+  "proof_of_address",
+  "proof_of_funds",
+  "source_of_wealth",
+  "investment_questionnaire",
+];
+
 export default async function DealsPage() {
   let user = null;
   let profile = null;
   let dealList: Deal[] = [];
+  let allDocsApproved = false;
 
   try {
     const supabase = await createClient();
@@ -119,6 +128,17 @@ export default async function DealsPage() {
         .eq("id", user.id)
         .single();
       profile = profileData;
+
+      if (profile?.role === "investor" && profile.verification_status === "approved") {
+        const { data: approvedDocs } = await supabase
+          .from("verification_documents")
+          .select("document_type")
+          .eq("user_id", user.id)
+          .eq("status", "approved");
+
+        const approvedTypes = new Set(approvedDocs?.map((d) => d.document_type) ?? []);
+        allDocsApproved = INVESTOR_REQUIRED_DOCS.every((type) => approvedTypes.has(type));
+      }
     }
 
     const { data: deals } = await supabase
@@ -169,14 +189,14 @@ export default async function DealsPage() {
           </div>
         )}
 
-        {/* Logged in but not verified investor */}
-        {user && profile?.role === "investor" && profile.verification_status !== "approved" && (
+        {/* Logged in but not fully verified investor */}
+        {user && profile?.role === "investor" && (profile.verification_status !== "approved" || !allDocsApproved) && (
           <div className="bg-amber-50 border border-amber-200 rounded-xl px-8 py-10 text-center max-w-lg mx-auto">
             <p className="text-amber-800 font-semibold mb-2">Verification required</p>
             <p className="text-amber-700 text-sm mb-6">
               {profile.verification_status === "pending"
                 ? "Your verification documents are under review. We'll notify you once your account is approved — usually within 1 business day."
-                : "Complete your investor verification to access the deal marketplace."}
+                : "All 5 compliance documents must be submitted and approved before you can access the deal marketplace."}
             </p>
             {profile.verification_status !== "pending" && (
               <Link
@@ -206,7 +226,7 @@ export default async function DealsPage() {
         )}
 
         {/* Verified investor — show deals */}
-        {user && profile?.role === "investor" && profile.verification_status === "approved" && (
+        {user && profile?.role === "investor" && profile.verification_status === "approved" && allDocsApproved && (
           <>
             <div className="flex items-center justify-between mb-6">
               <p className="text-sm text-navy/50">

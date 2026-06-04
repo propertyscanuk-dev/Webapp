@@ -5,6 +5,15 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import DealForm from "@/components/dashboard/DealForm";
 
+const REQUIRED_DOCS = [
+  "photo_id",
+  "proof_of_address",
+  "aml_certificate",
+  "prs_membership",
+  "pi_insurance",
+  "ico_registration",
+];
+
 export default async function AddDealPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -16,14 +25,23 @@ export default async function AddDealPage() {
     .eq("id", user.id)
     .single();
 
-  if (profile?.verification_status !== "approved") {
+  const { data: approvedDocs } = await supabase
+    .from("verification_documents")
+    .select("document_type")
+    .eq("user_id", user.id)
+    .eq("status", "approved");
+
+  const approvedTypes = new Set(approvedDocs?.map((d) => d.document_type) ?? []);
+  const allDocsApproved = REQUIRED_DOCS.every((type) => approvedTypes.has(type));
+
+  if (profile?.verification_status !== "approved" || !allDocsApproved) {
     return (
       <div className="max-w-2xl">
         <h1 className="text-2xl font-bold text-navy mb-2">Add Deal</h1>
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mt-6">
           <p className="text-sm font-semibold text-amber-800 mb-1">Verification required</p>
           <p className="text-sm text-amber-700 leading-relaxed">
-            Your account must be verified before you can list deals on PropertyScan.
+            All 6 compliance documents must be submitted and approved before you can list deals on PropertyScan.
             {profile?.verification_status === "pending"
               ? " Your documents are currently under review — we'll notify you once approved."
               : " Upload your compliance documents to get started."}
