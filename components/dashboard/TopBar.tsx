@@ -3,8 +3,9 @@
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/types/database";
+import NotificationBell from "@/components/dashboard/NotificationBell";
 
-type TopBarProfile = Pick<Profile, "full_name" | "email" | "role" | "verification_status">;
+type TopBarProfile = Pick<Profile, "id" | "full_name" | "email" | "role" | "verification_status">;
 
 const STATUS_BADGE: Record<string, { label: string; cls: string }> = {
   approved:      { label: "Verified",        cls: "bg-teal/10 text-teal" },
@@ -39,6 +40,7 @@ export default function TopBar({ profile }: { profile: TopBarProfile }) {
       </span>
 
       <div className="flex items-center gap-4">
+        <NotificationBell userId={profile.id} />
         <div className="text-right">
           <p className="text-sm font-semibold text-navy leading-tight">
             {profile.full_name ?? profile.email}
