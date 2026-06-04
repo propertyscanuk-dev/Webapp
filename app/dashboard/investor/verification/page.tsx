@@ -1,6 +1,9 @@
 export const dynamic = "force-dynamic";
 
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import VerificationDocs from "@/components/dashboard/VerificationDocs";
+import InvestmentQuestionnaire from "@/components/dashboard/InvestmentQuestionnaire";
 import type { DocConfig } from "@/components/dashboard/VerificationDocs";
 
 const INVESTOR_DOCS: DocConfig[] = [
@@ -28,17 +31,23 @@ const INVESTOR_DOCS: DocConfig[] = [
     description: "Evidence explaining the origin of your investment funds (e.g. business sale, inheritance, employment income).",
     accept: "image/*,.pdf",
   },
-  {
-    type: "investment_questionnaire",
-    label: "Investment Questionnaire",
-    description: "Completed self-certification as a sophisticated or high-net-worth investor. Download the template, complete it, and upload the signed PDF.",
-    accept: ".pdf",
-    downloadUrl: "/investment-questionnaire-template.html",
-    downloadLabel: "Download self-certification form",
-  },
 ];
 
-export default function InvestorVerificationPage() {
+export default async function InvestorVerificationPage() {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: questionnaireDoc } = await supabase
+    .from("verification_documents")
+    .select("status")
+    .eq("user_id", user.id)
+    .eq("document_type", "investment_questionnaire")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
+
   return (
     <div className="max-w-2xl">
       <div className="mb-8">
@@ -56,6 +65,13 @@ export default function InvestorVerificationPage() {
       </div>
 
       <VerificationDocs docs={INVESTOR_DOCS} />
+
+      <div className="mt-4">
+        <InvestmentQuestionnaire
+          userId={user.id}
+          existingStatus={questionnaireDoc?.status ?? null}
+        />
+      </div>
     </div>
   );
 }
