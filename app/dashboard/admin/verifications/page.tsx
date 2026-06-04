@@ -11,24 +11,27 @@ export default async function AdminVerificationsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  // Fetch users with pending verification status
-  const { data: pendingProfiles } = await supabase
-    .from("profiles")
-    .select("id, full_name, email, role, verification_status")
-    .eq("verification_status", "pending")
-    .order("created_at", { ascending: true });
+  // Fetch all docs that are pending review
+  const { data: pendingDocs } = await supabase
+    .from("verification_documents")
+    .select("*")
+    .eq("status", "pending")
+    .order("created_at", { ascending: false });
+
+  const allDocs = pendingDocs ?? [];
+
+  // Get unique user IDs who have at least one pending doc
+  const userIds = [...new Set(allDocs.map((d) => d.user_id))];
+
+  const { data: pendingProfiles } = userIds.length > 0
+    ? await supabase
+        .from("profiles")
+        .select("id, full_name, email, role, verification_status")
+        .in("id", userIds)
+        .order("created_at", { ascending: true })
+    : { data: [] };
 
   const profiles = pendingProfiles ?? [];
-
-  // Fetch all verification documents for these users in one query
-  const userIds = profiles.map((p) => p.id);
-  const { data: allDocs } = userIds.length > 0
-    ? await supabase
-        .from("verification_documents")
-        .select("*")
-        .in("user_id", userIds)
-        .order("created_at", { ascending: false })
-    : { data: [] };
 
   const docsByUser: Record<string, VerificationDocument[]> = {};
   for (const doc of allDocs ?? []) {
