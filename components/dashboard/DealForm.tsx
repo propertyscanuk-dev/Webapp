@@ -120,7 +120,6 @@ export default function DealForm() {
 
   const [photos, setPhotos] = useState<File[]>([]);
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
-  const [dealPack, setDealPack] = useState<File | null>(null);
 
   const photoInputRef = useRef<HTMLInputElement>(null);
 
@@ -208,18 +207,6 @@ export default function DealForm() {
         .map((storage_path, display_order) => ({ deal_id: dealId, storage_path, display_order }));
       if (photoRows.length > 0) {
         await supabase.from("deal_photos").insert(photoRows);
-      }
-    }
-
-    // Upload deal pack
-    if (dealPack) {
-      setUploadProgress("Uploading deal pack…");
-      const packPath = `${user.id}/${dealId}/deal-pack.pdf`;
-      const { error: packErr } = await supabase.storage
-        .from("deal-packs")
-        .upload(packPath, dealPack, { upsert: true });
-      if (!packErr) {
-        await supabase.from("deals").update({ deal_pack_url: packPath }).eq("id", dealId);
       }
     }
 
@@ -410,47 +397,6 @@ export default function DealForm() {
               <p className="text-xs text-navy/30 mt-0.5">JPG, PNG, WebP</p>
             </button>
           </>
-        )}
-      </div>
-
-      {/* Deal Pack */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h2 className="text-sm font-semibold text-navy mb-2">Deal Pack PDF</h2>
-        <p className="text-xs text-navy/40 mb-4">
-          Upload your full deal pack. Verified investors can download it from the deal listing. You can add this later if it&apos;s not ready yet.
-        </p>
-
-        {dealPack ? (
-          <div className="flex items-center gap-3 bg-teal/5 border border-teal/20 rounded-xl px-4 py-3">
-            <svg className="w-5 h-5 text-teal shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-navy truncate">{dealPack.name}</p>
-              <p className="text-xs text-navy/40">{(dealPack.size / 1024 / 1024).toFixed(1)} MB</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setDealPack(null)}
-              className="text-xs text-red-400 hover:text-red-600 font-medium transition-colors shrink-0"
-            >
-              Remove
-            </button>
-          </div>
-        ) : (
-          <label className="block w-full border-2 border-dashed border-gray-200 rounded-xl py-8 text-center hover:border-teal/40 hover:bg-teal/5 transition-colors cursor-pointer group">
-            <svg className="w-8 h-8 text-navy/20 group-hover:text-teal/40 mx-auto mb-2 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6.75 12l-3-3m0 0l-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-            </svg>
-            <p className="text-sm text-navy/40 group-hover:text-navy/60 transition-colors">Click to upload deal pack</p>
-            <p className="text-xs text-navy/30 mt-0.5">PDF only · max 50 MB</p>
-            <input
-              type="file"
-              accept=".pdf,application/pdf"
-              className="hidden"
-              onChange={(e) => setDealPack(e.target.files?.[0] ?? null)}
-            />
-          </label>
         )}
       </div>
 
