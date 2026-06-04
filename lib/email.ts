@@ -4,14 +4,18 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://propertyscan.uk";
 
 async function send(to: string, subject: string, html: string) {
   if (!RESEND_KEY) {
-    console.log("[email]", { to, subject });
+    console.warn("[email] RESEND_API_KEY not set — skipping send to", to, subject);
     return;
   }
-  await fetch("https://api.resend.com/emails", {
+  const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${RESEND_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({ from: FROM, to, subject, html }),
   });
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    console.error("[email] Resend error", res.status, body, { to, subject });
+  }
 }
 
 export async function sendVerificationApproved(to: string, name: string, role: "sourcer" | "investor") {

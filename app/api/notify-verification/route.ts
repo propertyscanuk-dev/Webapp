@@ -11,19 +11,23 @@ export async function POST() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, email, role")
+    .select("full_name, email, role, verification_status")
     .eq("id", user.id)
     .single();
 
   if (!profile) return NextResponse.json({ error: "Profile not found" }, { status: 404 });
 
-  // Only send on first document upload (count existing docs)
-  const { count } = await supabase
-    .from("verification_documents")
-    .select("id", { count: "exact", head: true })
-    .eq("user_id", user.id);
+  // Send notification when starting a fresh submission or re-submitting after rejection.
+  // Skip if already pending/approved so admin isn't spammed on every doc upload.
+  const shouldNotify = profile.verification_status === "not_submitted" || profile.verification_status === "rejected";
 
-  if (count === 1) {
+  if (shouldNotify) {
+    // Mark as pending so subsequent uploads don't re-trigger the email
+    await supabase
+      .from("profiles")
+      .update({ verification_status: "pending" })
+      .eq("id", user.id);
+
     await sendAdminNewVerification(
       profile.full_name ?? "Unknown",
       profile.email,
