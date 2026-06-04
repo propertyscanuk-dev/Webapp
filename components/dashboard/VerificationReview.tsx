@@ -35,6 +35,16 @@ export default function VerificationReview({ users: initialUsers, adminId }: Pro
   const supabase = createClient();
   const [users, setUsers] = useState(initialUsers);
   const [rejecting, setRejecting] = useState<string | null>(null);
+  const [viewing, setViewing] = useState<Record<string, boolean>>({});
+
+  async function viewDoc(docId: string, storagePath: string) {
+    setViewing((p) => ({ ...p, [docId]: true }));
+    const { data } = await supabase.storage
+      .from("verification-docs")
+      .createSignedUrl(storagePath, 300);
+    setViewing((p) => ({ ...p, [docId]: false }));
+    if (data?.signedUrl) window.open(data.signedUrl, "_blank");
+  }
   const [rejectNotes, setRejectNotes] = useState<Record<string, string>>({});
   const [rejectingUser, setRejectingUser] = useState<string | null>(null);
   const [rejectUserReason, setRejectUserReason] = useState<Record<string, string>>({});
@@ -176,7 +186,16 @@ export default function VerificationReview({ users: initialUsers, adminId }: Pro
                           </p>
                           <StatusBadge status={doc.status} />
                         </div>
-                        <p className="text-xs text-navy/40 mt-0.5 truncate">{doc.file_name}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <p className="text-xs text-navy/40 truncate">{doc.file_name}</p>
+                          <button
+                            onClick={() => viewDoc(doc.id, doc.storage_path)}
+                            disabled={viewing[doc.id]}
+                            className="text-xs text-teal font-medium hover:underline shrink-0 disabled:opacity-50"
+                          >
+                            {viewing[doc.id] ? "Loading…" : "View"}
+                          </button>
+                        </div>
                         {doc.admin_notes && (
                           <p className="text-xs text-red-500 mt-1">{doc.admin_notes}</p>
                         )}
