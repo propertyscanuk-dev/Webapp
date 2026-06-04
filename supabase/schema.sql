@@ -256,9 +256,10 @@ create policy "Approved sourcers can insert deals"
     )
   );
 
-create policy "Sourcers can update their own draft/active deals"
+create policy "Sourcers can update their own deals"
   on public.deals for update
-  using (auth.uid() = sourcer_id and status in ('draft', 'active'));
+  using (auth.uid() = sourcer_id and status in ('draft', 'active', 'withdrawn'))
+  with check (auth.uid() = sourcer_id and status in ('draft', 'active', 'withdrawn'));
 
 -- Verified investors can view deals that are reserved/sold (for their own reservation)
 create policy "Investors can view their own reserved deals"
