@@ -14,7 +14,7 @@ const STATUS_BADGE: Record<string, { label: string; cls: string }> = {
   rejected:      { label: "Rejected",         cls: "bg-red-50 text-red-600" },
 };
 
-export default function TopBar({ profile }: { profile: TopBarProfile }) {
+export default function TopBar({ profile, onMenuToggle }: { profile: TopBarProfile; onMenuToggle?: () => void }) {
   const router = useRouter();
 
   async function handleSignOut() {
@@ -34,14 +34,23 @@ export default function TopBar({ profile }: { profile: TopBarProfile }) {
     .toUpperCase();
 
   return (
-    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0">
-      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${badge.cls}`}>
-        {badge.label}
-      </span>
+    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-6 shrink-0">
+      <div className="flex items-center gap-3">
+        {onMenuToggle && (
+          <button onClick={onMenuToggle} className="lg:hidden text-navy/50 hover:text-navy transition-colors p-1">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        )}
+        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${badge.cls}`}>
+          {badge.label}
+        </span>
+      </div>
 
       <div className="flex items-center gap-4">
         <NotificationBell userId={profile.id} />
-        <div className="text-right">
+        <div className="text-right hidden sm:block">
           <p className="text-sm font-semibold text-navy leading-tight">
             {profile.full_name ?? profile.email}
           </p>

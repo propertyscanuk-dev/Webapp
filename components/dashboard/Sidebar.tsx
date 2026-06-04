@@ -131,9 +131,10 @@ const NAV: Record<UserRole, NavItem[]> = {
 
 interface SidebarProps {
   role: UserRole;
+  onClose?: () => void;
 }
 
-export default function Sidebar({ role }: SidebarProps) {
+export default function Sidebar({ role, onClose }: SidebarProps) {
   const pathname = usePathname();
   const items = NAV[role] ?? NAV.investor;
 
@@ -144,10 +145,17 @@ export default function Sidebar({ role }: SidebarProps) {
   return (
     <aside className="w-60 shrink-0 bg-navy flex flex-col h-full">
       {/* Logo */}
-      <div className="h-16 flex items-center px-5 border-b border-white/10 shrink-0">
+      <div className="h-16 flex items-center justify-between px-5 border-b border-white/10 shrink-0">
         <Link href="/" className="text-teal font-bold text-xl tracking-tight hover:opacity-80 transition-opacity">
           Property<span className="text-white">Scan</span>
         </Link>
+        {onClose && (
+          <button onClick={onClose} className="lg:hidden text-white/50 hover:text-white transition-colors p-1">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
       </div>
 
       {/* Role badge */}
