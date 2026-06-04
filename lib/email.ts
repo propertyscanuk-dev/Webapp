@@ -60,6 +60,22 @@ export async function sendDealReserved(to: string, sourcerName: string, dealTitl
   `);
 }
 
+export async function sendNewMessage(
+  to: string, recipientName: string,
+  senderName: string, dealTitle: string,
+  dealId: string, recipientRole: "sourcer" | "investor",
+  senderId: string,
+) {
+  const messagesUrl = `${APP_URL}/dashboard/${recipientRole}/messages?deal=${dealId}&with=${senderId}`;
+  await send(to, `New message from ${senderName} — ${dealTitle}`, `
+    <p>Hi ${recipientName},</p>
+    <p>You have a new message from <strong>${senderName}</strong> regarding <strong>${dealTitle}</strong>.</p>
+    <p><a href="${messagesUrl}">Reply on PropertyScan →</a></p>
+    <p style="color:#999;font-size:12px;">Please keep all communication within PropertyScan. Do not share contact details outside the platform.</p>
+    <p>The PropertyScan Team</p>
+  `);
+}
+
 export async function sendPaymentConfirmed(
   investorEmail: string, investorName: string,
   sourcerEmail: string, sourcerName: string,

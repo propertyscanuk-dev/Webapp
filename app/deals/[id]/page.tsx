@@ -70,6 +70,7 @@ export default async function DealDetailPage({
     { data: photos },
     profileResult,
     sourcerResult,
+    { data: sourcerReviews },
   ] = await Promise.all([
     supabase
       .from("deal_photos")
@@ -84,11 +85,23 @@ export default async function DealDetailPage({
       .select("id, full_name, company_name, verification_status")
       .eq("id", deal.sourcer_id)
       .single(),
+    supabase
+      .from("reviews")
+      .select("id, rating, comment, created_at, reviewer:profiles!reviews_reviewer_id_fkey(full_name)")
+      .eq("reviewee_id", deal.sourcer_id)
+      .order("created_at", { ascending: false })
+      .limit(10),
   ]);
 
   const profile = profileResult.data;
   const sourcer = sourcerResult.data;
   const photoList = photos ?? [];
+
+  type ReviewRow = { id: string; rating: number; comment: string | null; created_at: string; reviewer: { full_name: string | null } | null };
+  const reviews = (sourcerReviews ?? []) as unknown as ReviewRow[];
+  const avgRating = reviews.length > 0
+    ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length
+    : null;
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const photoUrl = (path: string) =>
@@ -244,6 +257,35 @@ export default async function DealDetailPage({
               </div>
             )}
 
+            {/* Sourcer reviews */}
+            {reviews.length > 0 && (
+              <div>
+                <h2 className="text-sm font-semibold text-navy/40 uppercase tracking-widest mb-4">
+                  Sourcer Reviews
+                </h2>
+                <div className="space-y-3">
+                  {reviews.map((r) => (
+                    <div key={r.id} className="bg-white rounded-xl border border-gray-100 p-5">
+                      <div className="flex items-center justify-between gap-3 mb-2">
+                        <div className="flex items-center gap-1">
+                          {[1,2,3,4,5].map((s) => (
+                            <svg key={s} className={`w-4 h-4 ${s <= r.rating ? "text-amber-400" : "text-gray-200"}`} fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                            </svg>
+                          ))}
+                        </div>
+                        <span className="text-xs text-navy/30">
+                          {new Date(r.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                        </span>
+                      </div>
+                      <p className="text-xs font-semibold text-navy mb-1">{r.reviewer?.full_name ?? "Verified Investor"}</p>
+                      {r.comment && <p className="text-sm text-navy/60 leading-relaxed">{r.comment}</p>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Compliance disclaimer */}
             <div className="bg-navy/5 rounded-xl border border-navy/10 p-6">
               <p className="text-xs font-semibold text-navy/40 uppercase tracking-widest mb-3">
@@ -293,6 +335,16 @@ export default async function DealDetailPage({
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                     </svg>
                     <span className="text-teal text-xs font-semibold">AML Verified · PRS Aligned</span>
+                  </div>
+                )}
+                {avgRating !== null && (
+                  <div className="mt-3 flex items-center gap-1.5">
+                    {[1,2,3,4,5].map((s) => (
+                      <svg key={s} className={`w-4 h-4 ${s <= Math.round(avgRating) ? "text-amber-400" : "text-gray-200"}`} fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      </svg>
+                    ))}
+                    <span className="text-xs text-navy/40 ml-1">{avgRating.toFixed(1)} ({reviews.length} review{reviews.length !== 1 ? "s" : ""})</span>
                   </div>
                 )}
               </div>

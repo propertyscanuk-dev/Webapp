@@ -258,12 +258,10 @@ export default function MessagesUI({ userId, role, initialDealId, initialWithId 
       )
     );
 
-    await supabase.from("messages").insert({
-      deal_id: active.dealId,
-      sender_id: userId,
-      recipient_id: active.otherId,
-      body,
-      read_at: null,
+    await fetch("/api/messages/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ deal_id: active.dealId, recipient_id: active.otherId, body }),
     });
 
     setSending(false);

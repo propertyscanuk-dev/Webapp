@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import LeaveReviewButton from "@/components/dashboard/LeaveReviewButton";
 
 function fmt(pence: number) {
   return (pence / 100).toLocaleString("en-GB", {
@@ -15,15 +16,28 @@ export default async function PurchasesPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  type TxRow = { id: string; investor_total: number; sourcing_fee: number; platform_fee: number; vat_amount: number; stripe_payment_intent_id: string | null; created_at: string; deals: { id: string; title: string; city: string; postcode: string; deal_type: string } | null };
+  type TxRow = {
+    id: string; investor_total: number; sourcing_fee: number; platform_fee: number;
+    vat_amount: number; stripe_payment_intent_id: string | null; created_at: string;
+    deals: { id: string; title: string; city: string; postcode: string; deal_type: string; sourcer_id: string; sourcer: { id: string; full_name: string | null } | null } | null;
+  };
 
-  const { data: transactions } = await supabase
-    .from("transactions")
-    .select("*, deals(id, title, city, postcode, deal_type)")
-    .eq("investor_id", user.id)
-    .order("created_at", { ascending: false });
+  const [{ data: transactions }, { data: myReviews }] = await Promise.all([
+    supabase
+      .from("transactions")
+      .select("*, deals(id, title, city, postcode, deal_type, sourcer_id, sourcer:profiles!deals_sourcer_id_fkey(id, full_name))")
+      .eq("investor_id", user.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("reviews")
+      .select("deal_id, rating, comment")
+      .eq("reviewer_id", user.id),
+  ]);
 
   const list: TxRow[] = (transactions as unknown as TxRow[]) ?? [];
+  const reviewMap = new Map(
+    (myReviews ?? []).map((r) => [r.deal_id, { rating: r.rating, comment: r.comment }])
+  );
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
@@ -40,7 +54,8 @@ export default async function PurchasesPage() {
       ) : (
         <div className="flex flex-col gap-4">
           {list.map((tx) => {
-            const deal = tx.deals as { id: string; title: string; city: string; postcode: string; deal_type: string } | null;
+            const deal = tx.deals as TxRow["deals"];
+            const existingReview = deal ? reviewMap.get(deal.id) : undefined;
             return (
               <div key={tx.id} className="bg-white border border-gray-200 rounded-xl p-6">
                 <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -85,10 +100,17 @@ export default async function PurchasesPage() {
                 </div>
 
                 {deal && (
-                  <div className="mt-4">
+                  <div className="mt-4 flex items-center justify-between flex-wrap gap-3">
                     <Link href={`/deals/${deal.id}`} className="text-sm text-teal font-semibold hover:text-teal-400 transition-colors">
                       View Deal →
                     </Link>
+                    <LeaveReviewButton
+                      dealId={deal.id}
+                      revieweeId={deal.sourcer_id}
+                      revieweeName={deal.sourcer?.full_name ?? "Sourcer"}
+                      existingRating={existingReview?.rating}
+                      existingComment={existingReview?.comment}
+                    />
                   </div>
                 )}
               </div>
