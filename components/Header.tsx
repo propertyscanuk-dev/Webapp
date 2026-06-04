@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 
 const navLinks = [
   { label: "For Sourcers", href: "/sourcers" },
@@ -14,6 +15,25 @@ const navLinks = [
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [dashboardHref, setDashboardHref] = useState<string | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) return;
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+      const role = profile?.role;
+      setDashboardHref(
+        role === "admin" ? "/dashboard/admin" :
+        role === "sourcer" ? "/dashboard/sourcer" :
+        "/dashboard/investor"
+      );
+    });
+  }, []);
 
   return (
     <header className="bg-navy sticky top-0 z-50 border-b border-navy-700">
@@ -51,18 +71,29 @@ export default function Header() {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
-            <Link
-              href="/login"
-              className="text-sm text-white/70 hover:text-white transition-colors font-medium"
-            >
-              Log in
-            </Link>
-            <Link
-              href="/register"
-              className="text-sm bg-teal text-navy font-semibold px-4 py-2 rounded-lg hover:bg-teal-400 transition-colors"
-            >
-              Get Started
-            </Link>
+            {dashboardHref ? (
+              <Link
+                href={dashboardHref}
+                className="text-sm bg-teal text-navy font-semibold px-4 py-2 rounded-lg hover:bg-teal-400 transition-colors"
+              >
+                Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="text-sm text-white/70 hover:text-white transition-colors font-medium"
+                >
+                  Log in
+                </Link>
+                <Link
+                  href="/register"
+                  className="text-sm bg-teal text-navy font-semibold px-4 py-2 rounded-lg hover:bg-teal-400 transition-colors"
+                >
+                  Get Started
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -100,20 +131,32 @@ export default function Header() {
             ))}
           </nav>
           <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-navy-700">
-            <Link
-              href="/login"
-              className="text-sm text-center text-white/70 hover:text-white py-2 transition-colors font-medium"
-              onClick={() => setMobileOpen(false)}
-            >
-              Log in
-            </Link>
-            <Link
-              href="/register"
-              className="text-sm text-center bg-teal text-navy font-semibold px-4 py-2.5 rounded-lg hover:bg-teal-400 transition-colors"
-              onClick={() => setMobileOpen(false)}
-            >
-              Get Started
-            </Link>
+            {dashboardHref ? (
+              <Link
+                href={dashboardHref}
+                onClick={() => setMobileOpen(false)}
+                className="text-sm text-center bg-teal text-navy font-semibold px-4 py-2.5 rounded-lg hover:bg-teal-400 transition-colors"
+              >
+                Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="text-sm text-center text-white/70 hover:text-white py-2 transition-colors font-medium"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Log in
+                </Link>
+                <Link
+                  href="/register"
+                  className="text-sm text-center bg-teal text-navy font-semibold px-4 py-2.5 rounded-lg hover:bg-teal-400 transition-colors"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Get Started
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}
