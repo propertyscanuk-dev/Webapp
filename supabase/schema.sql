@@ -206,6 +206,14 @@ create policy "Admins can view all profiles"
   on public.profiles for select
   using (public.is_admin());
 
+create policy "Authenticated users can view approved sourcer profiles"
+  on public.profiles for select
+  using (
+    auth.uid() is not null
+    and role = 'sourcer'
+    and verification_status = 'approved'
+  );
+
 create policy "Admins can update all profiles"
   on public.profiles for update
   using (public.is_admin());
