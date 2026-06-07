@@ -101,7 +101,7 @@ export default function SettingsForm({ id, full_name, email, phone, company_name
       <button
         type="submit"
         disabled={saving}
-        className="px-5 py-2.5 bg-teal text-white text-sm font-semibold rounded-lg hover:bg-teal/90 transition disabled:opacity-60"
+        className="px-5 py-2.5 bg-teal text-navy text-sm font-semibold rounded-lg hover:bg-teal/90 transition disabled:opacity-60"
       >
         {saving ? "Saving…" : "Save changes"}
       </button>
