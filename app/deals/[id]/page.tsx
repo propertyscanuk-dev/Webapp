@@ -63,7 +63,32 @@ export default async function DealDetailPage({
     supabase.from("deals").select("*").eq("id", id).single(),
   ]);
 
-  if (!deal) notFound();
+  if (!deal) {
+    if (paymentSuccess) {
+      return (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+          <div className="bg-white rounded-2xl border border-gray-200 p-10 max-w-md w-full text-center">
+            <div className="w-14 h-14 bg-teal/10 rounded-full flex items-center justify-center mx-auto mb-5">
+              <svg className="w-7 h-7 text-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h1 className="text-xl font-bold text-navy mb-2">Payment Confirmed</h1>
+            <p className="text-navy/50 text-sm leading-relaxed mb-6">
+              Your payment was successful. The deal pack will be available in your dashboard shortly.
+            </p>
+            <Link
+              href="/dashboard/investor/purchases"
+              className="block w-full bg-teal text-navy font-bold py-3.5 px-6 rounded-xl hover:bg-teal-400 transition-colors text-sm"
+            >
+              View My Purchases →
+            </Link>
+          </div>
+        </div>
+      );
+    }
+    notFound();
+  }
 
   // Fetch supporting data in parallel
   const [
